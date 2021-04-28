@@ -1,23 +1,39 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        App to TDR
-      </div>
-      <v-spacer></v-spacer>
+<v-app-bar
+      app
+      color="white"
+      flat
+      elevation="1"
+    >
+      <!-- <v-avatar
+        :color="$vuetify.breakpoint.smAndDown ? 'brown darken-1 shrink white--text' : 'transparent'"
+        size="32"
+      >AN</v-avatar> -->
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
+      <v-tabs
+        centered
+        class="ml-n9"
+        color="grey darken-1"
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+        <v-tab
+          v-for="link in links"
+          :key="link"
+        >
+          {{ link }}
+        </v-tab>
+      </v-tabs>
+
+      <v-avatar
+        class="hidden-sm-and-down darken-1 white--text"
+        color="brown darken-1 shrink"
+        size="32"
+      >AN</v-avatar>
     </v-app-bar>
 
-    <v-main>
-      <router-view />
+      
+    <v-main class="grey lighten-4">
+  <router-view></router-view>
     </v-main>
   </v-app>
 </template>
@@ -29,7 +45,10 @@ export default Vue.extend({
   name: "App",
 
   data: () => ({
-    //
+    links: [
+        'Listar',
+        'Criar',
+      ],
   }),
 });
 </script>
