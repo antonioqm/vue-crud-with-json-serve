@@ -9,6 +9,7 @@
           rounded="lg"
           min-height="268"
         >
+        <Form/>
          <ListPerson/>
         </v-sheet>
       </v-col>
@@ -19,11 +20,13 @@
 
 <script lang="ts">
   import Vue from 'vue'
-  import ListPerson from "./ListPerson.vue"
+  import ListPerson from "@/components/ListPerson.vue"
+  import Form from '@/components/Form.vue'
 
   export default Vue.extend({
       components : {
-        ListPerson
+        ListPerson,
+        Form
       }
   })
 </script>

@@ -1,6 +1,6 @@
 <template>
   <v-card rounded="lg" elevation="0">
-    <validation-observer ref="observer" v-slot="{ invalid }">
+    <validation-observer ref="observer" v-slot="{ dirty, invalid }">
       <form @submit.prevent="submit">
         <validation-provider
           v-slot="{ errors }"
@@ -50,13 +50,13 @@
           <template v-slot:activator="{ on, attrs }">
             <validation-provider
               v-slot="{ errors }"
-              name="niver"
+              name="Data de Nascimento"
               rules="required|afterCurrentDate"
             >
               <v-text-field
                 class="rounded-lg"
                 label="Data de nascimento"
-                prepend-inner-icon="event_available"
+                prepend-inner-icon="event"
                 readonly
                 :error-messages="errors"
                 v-bind="attrs"
@@ -80,15 +80,15 @@
         </v-menu>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn depressed large dark @click="clear">
+          <v-btn :disabled="!(dirty)" depressed large @click="clear">
             Limpar
           </v-btn>
           <v-btn
-            :disabled="false"
             depressed
             color="primary"
             large
-            dark
+            type="submit"
+            :disabled="invalid"
             @click="submit"
           >
             enviar
@@ -103,12 +103,15 @@
 import Vue from 'vue'
 import { mask } from '@titou10/v-mask'
 import validate from '@/service/validate'
+import { localize } from 'vee-validate';
+import pt_BR from 'vee-validate/dist/locale/pt_BR.json';
+
+localize('pt_BR', pt_BR);
 import {
   required,
   digits,
   email,
   max,
-  regex,
   min,
 } from 'vee-validate/dist/rules'
 import {
@@ -126,7 +129,7 @@ extend('digits', {
 
 extend('required', {
   ...required,
-  message: '{_field_} can not be empty',
+  message: '{_field_} não pode ser vazio',
 })
 
 extend('max', {
@@ -139,10 +142,6 @@ extend('min', {
   message: 'O {_field_} precisar ter no mínimo {length} caracteres',
 })
 
-extend('regex', {
-  ...regex,
-  message: '{_field_} {_value_} does not match {regex}',
-})
 
 extend('email', {
   ...email,
@@ -157,7 +156,7 @@ extend('cpf', async (cpf) => {
 extend('afterCurrentDate', async (date) => {
   let valid = await validate.afterCurrentDate(date)
 
-  return valid ? true : `A data não pode ser posterior a data de hoje, ${currentDate}`
+  return valid ? true : `A data não pode ser posterior a data de hoje (${currentDate})`
 })
 const options = { year: 'numeric', month: 'long', day: 'numeric' }
 let currentDate = new Date().toLocaleDateString('pt-BR', options)
@@ -175,7 +174,7 @@ export default Vue.extend({
     form: {
       name: '',
       cpf: null,
-      birthDate: new Date().toISOString().substr(0, 10),
+      birthDate:null,
     },
   }),
   watch: {
@@ -184,6 +183,9 @@ export default Vue.extend({
     },
   },
   computed: {
+    formDirty: () => {
+      return false
+    },
     formatDateLabel() {
       console.log(
         'computed',
@@ -211,7 +213,8 @@ export default Vue.extend({
       }
     },
     clear() {
-      this.form.name = ''
+      console.log(this.$refs.observer.flags.dirty)
+      console.log(this.$refs.observer)
       this.$refs.observer.reset()
     },
   },
