@@ -4,29 +4,39 @@
       <form @submit.prevent="submit">
         <validation-provider
           v-slot="{ errors }"
-          name="Name"
+          name="Nome"
           rules="required|max:60|min:5"
         >
           <v-text-field
             prepend-inner-icon="person"
             class="rounded-lg"
-            v-model="name"
+            v-model="form.name"
             clearable
-            :counter="10"
+            :counter="60"
             :error-messages="errors"
             label="Nome"
             placeholder="nome"
             outlined
           ></v-text-field>
         </validation-provider>
+        <validation-provider
+          v-slot="{ errors }"
+          name="CPF"
+          rules="required|max:14|min:5"
+        >
         <v-text-field
           prepend-inner-icon="badge"
           class="rounded-lg"
           clearable
+          v-model="form.cpf"
+          :counter="14"
+           :error-messages="errors"
           label="CPF"
           placeholder="CPF"
+          v-mask="['###.###.###-##', '##.###.###/####-##']"
           outlined
         ></v-text-field>
+        </validation-provider>
 
         <v-menu
           ref="menu"
@@ -62,14 +72,23 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
+            depressed
+            color="primary"
+            large
+            dark
+            @click="clear"
+          >
+            clear
+          </v-btn>
+          <v-btn
             :disabled="invalid"
             depressed
             color="primary"
             large
             dark
-            @click="save"
+            @click="submit"
           >
-            clear
+            enviar
           </v-btn>
         </v-card-actions>
       </form>
@@ -97,7 +116,7 @@ setInteractionMode('eager')
 
 extend('digits', {
   ...digits,
-  message: '{_field_} needs to be {length} digits. ({_value_})',
+  message: '{_field_} precisar ter {length} digitos. ({_value_})',
 })
 
 extend('required', {
@@ -107,12 +126,12 @@ extend('required', {
 
 extend('max', {
   ...max,
-  message: '{_field_} may not be greater than {length} characters',
+  message: 'O {_field_} precisa ter no máximo {length} caracteres',
 })
 
 extend('min', {
   ...min,
-  message: 'The {_field_} cannot be less than {length} characters',
+  message: 'O {_field_} precisar ter no mínimo {length} caracteres',
 })
 
 extend('regex', {
@@ -137,7 +156,11 @@ export default Vue.extend({
     msg: '',
     date: new Date().toISOString().substr(0, 10),
     menu: false,
-    name: '',
+    form: {
+      name: "",
+      cpf: "",
+      birthDate: ""
+    }
   }),
   watch: {
     menu(val) {
@@ -164,11 +187,13 @@ export default Vue.extend({
     save(date) {
       this.$refs.menu.save(date)
     },
-    submit() {
-      this.$refs.observer.validate()
+    async submit() {
+      let teste = await this.$refs.observer.validate()
+      console.log(teste)
+      
     },
     clear() {
-      this.name = ''
+      this.form.name = ''
       this.$refs.observer.reset()
     },
   },
