@@ -11,6 +11,7 @@
             prepend-inner-icon="person"
             class="rounded-lg"
             v-model="form.name"
+            type="text"
             clearable
             :counter="60"
             :error-messages="errors"
@@ -22,20 +23,20 @@
         <validation-provider
           v-slot="{ errors }"
           name="CPF"
-          rules="required|max:14|min:5"
+          rules="cpf|required|max:14|min:5"
         >
-        <v-text-field
-          prepend-inner-icon="badge"
-          class="rounded-lg"
-          clearable
-          v-model="form.cpf"
-          :counter="14"
-           :error-messages="errors"
-          label="CPF"
-          placeholder="CPF"
-          v-mask="['###.###.###-##', '##.###.###/####-##']"
-          outlined
-        ></v-text-field>
+          <v-text-field
+            prepend-inner-icon="badge"
+            class="rounded-lg"
+            clearable
+            v-model="form.cpf"
+            :counter="14"
+            :error-messages="errors"
+            label="CPF"
+            placeholder="CPF"
+            v-mask="{ mask: '###.###.###-##' }"
+            outlined
+          ></v-text-field>
         </validation-provider>
 
         <v-menu
@@ -47,41 +48,43 @@
           min-width="auto"
         >
           <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              class="rounded-lg"
-              label="Data de nascimento"
-              prepend-inner-icon="event_available"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-              outlined
-              clearable
-              @click:clear="date = null"
-              :value="formatDateLabel"
-            ></v-text-field>
+            <validation-provider
+              v-slot="{ errors }"
+              name="niver"
+              rules="required|afterCurrentDate"
+            >
+              <v-text-field
+                class="rounded-lg"
+                label="Data de nascimento"
+                prepend-inner-icon="event_available"
+                readonly
+                :error-messages="errors"
+                v-bind="attrs"
+                v-on="on"
+                outlined
+                clearable
+                @focus="menu=true"
+                @click:clear="form.birthDate = null"
+                v-model="form.birthDate"
+              ></v-text-field>
+            </validation-provider>
           </template>
           <v-date-picker
             :title-date-format="formatDateTitle"
             ref="picker"
-            v-model="date"
-            :max="new Date().toISOString().substr(0, 10)"
+            v-model="form.birthDate"
             min="1950-01-01"
+            max="2025-01-01"
             @change="save"
           ></v-date-picker>
         </v-menu>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            depressed
-            color="primary"
-            large
-            dark
-            @click="clear"
-          >
-            clear
+          <v-btn depressed large dark @click="clear">
+            Limpar
           </v-btn>
           <v-btn
-            :disabled="invalid"
+            :disabled="false"
             depressed
             color="primary"
             large
@@ -98,6 +101,8 @@
 
 <script>
 import Vue from 'vue'
+import { mask } from '@titou10/v-mask'
+import validate from '@/service/validate'
 import {
   required,
   digits,
@@ -144,23 +149,34 @@ extend('email', {
   message: 'Email must be valid',
 })
 
-export default Vue.extend({
+extend('cpf', async (cpf) => {
+  let valid = await validate.cpf(cpf)
 
+  return valid ? true : 'CPF inválido'
+})
+extend('afterCurrentDate', async (date) => {
+  let valid = await validate.afterCurrentDate(date)
+
+  return valid ? true : `A data não pode ser posterior a data de hoje, ${currentDate}`
+})
+const options = { year: 'numeric', month: 'long', day: 'numeric' }
+let currentDate = new Date().toLocaleDateString('pt-BR', options)
+export default Vue.extend({
   name: 'Form',
   components: {
     ValidationObserver,
     ValidationProvider,
   },
+  directives: { mask },
 
   data: () => ({
     msg: '',
-    date: new Date().toISOString().substr(0, 10),
     menu: false,
     form: {
-      name: "",
-      cpf: "",
-      birthDate: ""
-    }
+      name: '',
+      cpf: null,
+      birthDate: new Date().toISOString().substr(0, 10),
+    },
   }),
   watch: {
     menu(val) {
@@ -171,10 +187,10 @@ export default Vue.extend({
     formatDateLabel() {
       console.log(
         'computed',
-        new Date(this.date).toLocaleDateString('pt-BR', {}),
+        new Date(this.form.birthDate).toLocaleDateString('pt-BR', {}),
       )
-      return this.date
-        ? new Date(this.date).toLocaleDateString('pt-BR', {})
+      return this.form.birthDate
+        ? new Date(this.form.birthDate).toLocaleDateString('pt-BR', {})
         : ''
     },
   },
@@ -184,13 +200,15 @@ export default Vue.extend({
       let newDate = new Date(date).toLocaleDateString('pt-BR', options)
       return newDate
     },
+
     save(date) {
       this.$refs.menu.save(date)
     },
     async submit() {
-      let teste = await this.$refs.observer.validate()
-      console.log(teste)
-      
+      let valid = await this.$refs.observer.validate()
+      if (valid) {
+        console.log(this.form)
+      }
     },
     clear() {
       this.form.name = ''
