@@ -8,9 +8,10 @@
         <v-sheet
           rounded="lg"
           min-height="268"
+          class="pa-10"
         >
-        <Form/>
-         <ListPerson/>
+        <Form v-on:new-person="newPerson"/>
+         <ListPerson :people="people" />
         </v-sheet>
       </v-col>
        <!-- <router-view /> -->
@@ -18,15 +19,30 @@
   </v-container>
 </template>
 
-<script lang="ts">
+<script>
   import Vue from 'vue'
   import ListPerson from "@/components/ListPerson.vue"
   import Form from '@/components/Form.vue'
+  import { getPeson } from '@/http/api.js'
 
   export default Vue.extend({
       components : {
         ListPerson,
         Form
+      },
+      data () {
+      return {
+        people: []
+      }
+    },
+      async mounted () {
+        this.people = await getPeson()
+      },
+      methods: {
+        newPerson(person){
+          this.people.unshift(person)
+          console.log("id do novo", person)
+        }
       }
   })
 </script>

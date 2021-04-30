@@ -63,7 +63,7 @@
                 v-on="on"
                 outlined
                 clearable
-                @focus="menu=true"
+                @focus="menu = true"
                 @click:clear="form.birthDate = null"
                 v-model="form.birthDate"
               ></v-text-field>
@@ -78,9 +78,16 @@
             @change="save"
           ></v-date-picker>
         </v-menu>
+        <v-textarea
+          outlined
+          class="rounded-lg"
+          label="Outlined textarea"
+          v-model="form.bio"
+        ></v-textarea>
+
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn :disabled="!(dirty)" depressed large @click="clear">
+          <v-btn :disabled="!dirty" depressed large @click="clear">
             Limpar
           </v-btn>
           <v-btn
@@ -89,7 +96,6 @@
             large
             type="submit"
             :disabled="invalid"
-            @click="submit"
           >
             enviar
           </v-btn>
@@ -100,68 +106,67 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { mask } from '@titou10/v-mask'
-import validate from '@/service/validate'
-import { localize } from 'vee-validate';
-import pt_BR from 'vee-validate/dist/locale/pt_BR.json';
+import Vue from "vue";
+import { mask } from "@titou10/v-mask";
+import validate from "@/service/validate";
+import { localize } from "vee-validate";
+import pt_BR from "vee-validate/dist/locale/pt_BR.json";
+import { createPerson } from "@/http/api";
 
-localize('pt_BR', pt_BR);
-import {
-  required,
-  digits,
-  email,
-  max,
-  min,
-} from 'vee-validate/dist/rules'
+localize("pt_BR", pt_BR);
+import { required, digits, email, max, min } from "vee-validate/dist/rules";
 import {
   extend,
   ValidationObserver,
   ValidationProvider,
   setInteractionMode,
-} from 'vee-validate'
-setInteractionMode('eager')
+} from "vee-validate";
 
-extend('digits', {
+setInteractionMode("eager");
+
+extend("digits", {
   ...digits,
-  message: '{_field_} precisar ter {length} digitos. ({_value_})',
-})
+  message: "{_field_} precisar ter {length} digitos. ({_value_})",
+});
 
-extend('required', {
+extend("required", {
   ...required,
-  message: '{_field_} não pode ser vazio',
-})
+  message: "{_field_} não pode ser vazio",
+});
 
-extend('max', {
+extend("max", {
   ...max,
-  message: 'O {_field_} precisa ter no máximo {length} caracteres',
-})
+  message: "O {_field_} precisa ter no máximo {length} caracteres",
+});
 
-extend('min', {
+extend("min", {
   ...min,
-  message: 'O {_field_} precisar ter no mínimo {length} caracteres',
-})
+  message: "O {_field_} precisar ter no mínimo {length} caracteres",
+});
 
-
-extend('email', {
+extend("email", {
   ...email,
-  message: 'Email must be valid',
-})
+  message: "Email must be valid",
+});
 
-extend('cpf', async (cpf) => {
-  let valid = await validate.cpf(cpf)
+extend("cpf", async (cpf) => {
+  let valid = await validate.cpf(cpf);
 
-  return valid ? true : 'CPF inválido'
-})
-extend('afterCurrentDate', async (date) => {
-  let valid = await validate.afterCurrentDate(date)
+  return valid ? true : "CPF inválido";
+});
+extend("afterCurrentDate", async (date) => {
+  let valid = await validate.afterCurrentDate(date);
 
-  return valid ? true : `A data não pode ser posterior a data de hoje (${currentDate})`
-})
-const options = { year: 'numeric', month: 'long', day: 'numeric' }
-let currentDate = new Date().toLocaleDateString('pt-BR', options)
+  return valid
+    ? true
+    : `Data não pode ser posterior a hoje (${currentDate})`;
+});
+
+const options = { year: "numeric", month: "long", day: "numeric" };
+let currentDate = new Date().toLocaleDateString("pt-BR", options);
+
 export default Vue.extend({
-  name: 'Form',
+  name: "Form",
   components: {
     ValidationObserver,
     ValidationProvider,
@@ -169,56 +174,83 @@ export default Vue.extend({
   directives: { mask },
 
   data: () => ({
-    msg: '',
+    msg: "",
     menu: false,
     form: {
-      name: '',
+      name: "",
+      id: null,
       cpf: null,
-      birthDate:null,
+      birthDate: null,
+      bio: ""
     },
   }),
+  mounted() {
+    this.form = {
+      id: null,
+      cpf: "787.733.692-68",
+      birthDate: "1986-05-01",
+      name: "1JOão",
+    };
+  },
   watch: {
     menu(val) {
-      val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
+      val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"));
     },
+    form: {
+      deep: true,
+       handler: (val) => {
+        //  this.form.birthDate = "2021-01-01"
+         console.log('The list of colours has changed!', );
+
+       }
+    }
   },
   computed: {
     formDirty: () => {
-      return false
+      return false;
     },
     formatDateLabel() {
-      console.log(
-        'computed',
-        new Date(this.form.birthDate).toLocaleDateString('pt-BR', {}),
-      )
+      const options = { year: "numeric", month: "short", day: "numeric" };
       return this.form.birthDate
-        ? new Date(this.form.birthDate).toLocaleDateString('pt-BR', {})
-        : ''
+        ? new Date(this.form.birthDate).toLocaleDateString("pt-BR", options)
+        : "";
     },
   },
   methods: {
+    async generateId(){
+      let limit = (Math.pow(10,7));
+      let id = Math.floor(Math.random() * limit) + 1;
+      return id;
+    },
     formatDateTitle(date) {
-      const options = { year: 'numeric', month: 'short', day: 'numeric' }
-      let newDate = new Date(date).toLocaleDateString('pt-BR', options)
-      return newDate
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      let newDate = new Date(date).toLocaleDateString("pt-BR", options);
+      return newDate;
     },
 
     save(date) {
-      this.$refs.menu.save(date)
+      this.$refs.menu.save(date);
     },
     async submit() {
-      let valid = await this.$refs.observer.validate()
-      if (valid) {
-        console.log(this.form)
-      }
+      console.log("clicou")
+       this.form.id = !this.form.id && await this.generateId();
+       let newPerson = await createPerson(this.form);
+        await this.$emit('new-person', newPerson);
+       this.form = {
+         id: null,
+         name: "",
+         birthDate: null,
+         cpf: null,
+         bio: ""
+       }
     },
     clear() {
-      console.log(this.$refs.observer.flags.dirty)
-      console.log(this.$refs.observer)
-      this.$refs.observer.reset()
+      console.log(this.$refs.observer.flags.dirty);
+      console.log(this.$refs.observer);
+      this.$refs.observer.reset();
     },
   },
-})
+});
 </script>
 <style lang="scss">
 .v-card {

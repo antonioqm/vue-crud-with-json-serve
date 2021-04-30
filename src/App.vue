@@ -6,11 +6,6 @@
       flat
       elevation="1"
     >
-      <!-- <v-avatar
-        :color="$vuetify.breakpoint.smAndDown ? 'brown darken-1 shrink white--text' : 'transparent'"
-        size="32"
-      >AN</v-avatar> -->
-
       <v-tabs
         centered
         class="ml-n9"

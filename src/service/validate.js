@@ -8,9 +8,9 @@ const cpf = async (cpf) => {
 }
 
 const afterCurrentDate = async (date) => {
-  let currentDate = new Date()
-  let dateValid = moment(date).isBefore(currentDate) ? true : false;
-  // console.log("data hoje: " + currentDate, date)
+  let currentDate = moment(new Date(), "YYYY-MM-DD")
+  let dateValid = moment(date, "YYYY-MM-DD").isBefore(currentDate) ? true : false;
+  console.log("data hoje: " + currentDate, date)
   console.log("data é: " + dateValid)
   return dateValid
 }

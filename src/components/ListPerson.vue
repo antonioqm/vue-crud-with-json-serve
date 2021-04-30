@@ -1,21 +1,33 @@
 <template>
-  <div>
-  <v-sheet
+  <div >
+  <v-card
     :color="`transparent`"
-    class="pa-10"
+    class="my-container"
+    depressed
+    elevation="0"
   >
-  <Form />
-  </v-sheet>
+  <template v-for="(person, i) in people">
+    <CardPeson class="pa-2" :key="i"  :person="person" />
+    
+  </template>
+  </v-card>
   </div>
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
-  import Form from '@/components/Form.vue';
+  import CardPeson from '@/components/CardPeson.vue'
   export default Vue.extend({
+    props: {
+      people: {
+        default: [],
+        type: Array,
+      }
+    },
     components: {
-      Form
+      CardPeson
     }
+    
   })
 </script>
 
@@ -23,5 +35,11 @@
 .v-skeleton-loader__text .v-skeleton-loader__bone {
   $skeleton-loader-divider-height: 60px;
   height: 60px !important;
+}
+.my-container{
+  display: flex;
+  flex-direction: row;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
 </style>
