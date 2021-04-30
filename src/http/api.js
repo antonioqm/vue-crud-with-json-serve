@@ -14,4 +14,19 @@ export async function createPerson (person) {
       return response.data
     })
 }
+export async function editPerson (person) {
+  const {id} = person
+  return axios.put(`http://localhost:3000/person/${id}`, person)
+    .then(response => {
+      console.log("editando no server", person)
+      return response.data
+    })
+}
+export async function removePerson (person) {
+  const {id} = person
+  return axios.delete(`http://localhost:3000/person/${id}`)
+    .then(async (response) => {
+      return {id}
+    })
+}
 

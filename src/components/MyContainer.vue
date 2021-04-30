@@ -10,7 +10,7 @@
           min-height="268"
           class="pa-10"
         >
-        <Form v-on:new-person="newPerson"/>
+        <Form/>
          <ListPerson :people="people" />
         </v-sheet>
       </v-col>
@@ -23,7 +23,7 @@
   import Vue from 'vue'
   import ListPerson from "@/components/ListPerson.vue"
   import Form from '@/components/Form.vue'
-  import { getPeson } from '@/http/api.js'
+  import { getPeson, removePerson } from '@/http/api.js'
 
   export default Vue.extend({
       components : {
@@ -37,11 +37,34 @@
     },
       async mounted () {
         this.people = await getPeson()
+        await this.$root.$on('new-person', this.newPerson)
+        await this.$root.$on('edited-person', this.editedPerson)
+        await this.$root.$on('remove-person', this.remove)
       },
       methods: {
         newPerson(person){
           this.people.unshift(person)
           console.log("id do novo", person)
+        },
+        editedPerson(person){
+          const {id} = person;
+          const index =  this.people.findIndex((person) => {
+            return person.id === id
+          })
+
+          this.people.splice(index, 1, person)
+
+        },
+        async remove(person){
+          debugger
+          const {id} = await removePerson(person);
+          console.log(`Removido ${person.id} ${id}`)
+          const index =  this.people.findIndex((person) => {
+            return person.id === id
+          })
+
+          this.people.splice(index, 1)
+
         }
       }
   })

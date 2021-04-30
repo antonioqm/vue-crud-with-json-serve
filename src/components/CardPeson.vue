@@ -2,12 +2,8 @@
   <div>
   <v-card
     class=""
-    max-width="344"
+    width="344"
   >
-    <v-img
-      src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg"
-      height="200px"
-    ></v-img>
 
     <v-card-title>
       {{person.name}}
@@ -21,12 +17,14 @@
       <v-btn
         color="grey darken-1"
         text
+        @click="edit"
       >
         Editar
       </v-btn>
       <v-btn
         color="error lighten-1"
         text
+        @click="remove"
       >
         Remover
       </v-btn>
@@ -64,7 +62,15 @@
     },
     data: () => ({
       show: false
-    })
+    }),
+    methods: {
+      async edit(){
+        await this.$root.$emit('edit-person', this.person)
+      },
+      async remove(){
+        await this.$root.$emit('remove-person', this.person)
+      }
+    }
     
   })
 </script>
