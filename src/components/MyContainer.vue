@@ -59,7 +59,7 @@
           debugger
           const {id} = await removePerson(person);
           console.log(`Removido ${person.id} ${id}`)
-          const index =  this.people.findIndex((person) => {
+          const index =  this.people.findIndex((person) => {  
             return person.id === id
           })
 

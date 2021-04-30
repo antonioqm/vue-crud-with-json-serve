@@ -65,10 +65,10 @@
     }),
     methods: {
       async edit(){
-        await this.$root.$emit('edit-person', this.person)
+        await this.$root.$emit('edit-person', this.person);
       },
       async remove(){
-        await this.$root.$emit('remove-person', this.person)
+        await this.$root.$emit('remove-person', this.person);
       }
     }
     

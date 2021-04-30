@@ -20,9 +20,11 @@
   export default Vue.extend({
     props: {
       people: {
-        default: [],
-        type: Array,
-      }
+       type: [Array],
+          default: function () {
+            return []
+          }
+      },
     },
     components: {
       CardPeson
