@@ -29,5 +29,18 @@ npm run test:unit
 npm run lint
 ```
 
+#### Configure api Fake
+
+Install json-server globalmente:
+
+```
+npm install -g json-server
+```
+
+init api fake of the person;
+
+```
+json-server --watch db.json
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
